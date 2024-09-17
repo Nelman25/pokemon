@@ -2,11 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import axios from "axios";
 import pokemonLogo from "./assets/pokemonLogo.png";
+import backPokemonCard from "./assets/backPokemonCard.jpg";
+import forestBg from "./assets/forestBg.png";
 
 const App = () => {
 	const [searchedPokemon, setSearchedPokemon] = useState("");
-	const [rotatePokemon, setRotatePokemon] = useState(true);
 	const [pokemonIsValid, setPokemonIsValid] = useState(true);
 	const [pokemonData, setPokemonData] = useState({
 		name: "",
@@ -16,31 +18,23 @@ const App = () => {
 	});
 
 	const handleSearchPokemon = async () => {
-		try {
-			const response = await fetch(
-				`https://pokeapi.co/api/v2/pokemon/${searchedPokemon.toLowerCase()}`
-			);
-			if (!response.ok) {
-				throw new Error(
-					"Couldn't fetch data, please check spelling and try again."
-				);
-			}
-			const data = await response.json();
-
-			const pokemonDataObject = {
-				name: data.name,
-				weight: `${data.weight}kg`,
-				height: `${data.height}cm`,
-				pokemonImg: rotatePokemon
-					? data.sprites.front_default
-					: data.sprites.back_default,
-			};
-			setPokemonData(pokemonDataObject);
-			setPokemonIsValid(true);
-		} catch (error) {
-			console.error(error);
-			setPokemonIsValid(false);
-		}
+		await axios
+			.get(`https://pokeapi.co/api/v2/pokemon/${searchedPokemon.toLowerCase()}`)
+			.then((response) => {
+				const data = response.data;
+				const pokemonDataObject = {
+					name: `Name: ${data.name}`,
+					weight: `Weight: ${data.weight}kg`,
+					height: `Height: ${data.height}cm`,
+					pokemonImg: data.sprites.front_default,
+				};
+				setPokemonData(pokemonDataObject);
+				setPokemonIsValid(true);
+			})
+			.catch((error) => {
+				console.error(error);
+				setPokemonIsValid(false);
+			});
 	};
 
 	const handleChangeSearch = (e) => {
@@ -48,9 +42,9 @@ const App = () => {
 	};
 
 	return (
-		<div className="bg-slate-200 text-center h-screen font-palanquin]">
+		<div className="bg-gradient-to-r from-sky-500 via-lime-500 to-emerald-500 text-center h-screen font-palanquin]">
 			<div className="flex justify-center items-center gap-4">
-				<img src={pokemonLogo} width={200} height={100} />
+				<img src={pokemonLogo} />
 				<div className="flex w-[800px] items-center space-x-2">
 					<Input
 						id="searchPokemon"
@@ -64,23 +58,37 @@ const App = () => {
 				</div>
 			</div>
 
-			<div className="mx-auto p-8 w-[30%] h-[81%] bg-yellow-200 rounded-lg shadow-2xl border border-black rotateY180 perspective">
+			<div>
 				{pokemonIsValid ? (
-					<div className="flex flex-col justify-center items-center bg-orange-300">
-						<img
-							src={pokemonData.pokemonImg}
-							className="w-[510px] h-[525px] object-contain border-2 border-black drop-shadow-2xl "
-						/>
-						<div className="px-4 py-8 text-start text-xl border-2 border-black w-full border-t-0">
-							<h3 className="">Name: {pokemonData.name} </h3>
-							<p>Height: {pokemonData.height} </p>
-							<p>Weight: {pokemonData.weight} </p>
+					<div className="mainContainer relative perspective h-[650px] w-[480px] mx-auto">
+						<div className="mx-auto w-full h-[650px] bg-gradient-to-r from-yellow-500 via-yellow-700 to-amber-500 py-10 px-8 rounded-xl shadow-2xl border border-slate-700 absolute top-0 left-0 rotateY-180 backFace">
+							<div className="flex items-end justify-center py-16 px-4 bg-amber-200 size-full rounded-xl h-[600px] relative">
+								<img src={forestBg} className="absolute top-10 left0 size-96" />
+								<img
+									src={pokemonData.pokemonImg}
+									className="object-contain absolute top-14 left-10 size-80"
+								/>
+								<div className="bg-amber-500 rounded-xl px-24 py-2">
+									<p>{pokemonData.name}</p>
+									<p>{pokemonData.height}</p>
+									<p>{pokemonData.weight}</p>
+								</div>
+							</div>
+						</div>
+						<div className="absolute top-0 left-0 rotateY180 backFace">
+							<img
+								src={backPokemonCard}
+								className="object-contain"
+								width={800}
+							/>
 						</div>
 					</div>
 				) : (
-					<p className="text-2xl p-24 text-red-600 bold">
-						Pokemon not found, please check spelling and try again.
-					</p>
+					<div className="bg-slate-100 w-[60%] mx-auto rounded-xl">
+						<p className="text-4xl p-12 text-red-600 bold">
+							Pokemon not found, please check spelling and try again.
+						</p>
+					</div>
 				)}
 			</div>
 		</div>
