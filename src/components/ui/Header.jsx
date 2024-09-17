@@ -1,13 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Button } from "./button";
-import { Input } from "postcss";
+import { Input } from "./input";
 
-const Header = ({
-	searchedPokemon,
-	onChangeSearch,
-	onSearchPokemon,
-	pokemonLogo,
-}) => {
+const Header = ({ searchedPokemon, onChangeSearch, onSearchPokemon, pokemonLogo }) => {
 	return (
 		<header className="flex justify-center items-center gap-4">
 			<img src={pokemonLogo} />
